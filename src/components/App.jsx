@@ -6,17 +6,24 @@ export default class App extends React.Component {
   constructor() {
     super()
 
-    this.state = {
+    this.initialState = {
       filters: {
         sort_by: 'popularity.desc',
+        primary_release_year: '',
+        with_genres: [],
       },
       page: 1,
+      total_pages: null,
     }
+    this.state = { ...this.initialState }
   }
 
   onChangeFilters = e => {
-    const value = e.target.value
-    const name = e.target.name
+    const { name, value } = e.target
+    this.updateFilters({ name, value })
+  }
+
+  updateFilters = ({ name, value }) => {
     this.setState(prevState => ({
       filters: {
         ...prevState.filters,
@@ -31,20 +38,36 @@ export default class App extends React.Component {
     })
   }
 
+  onChangeTotalPage = total_pages => {
+    this.setState({
+      total_pages,
+    })
+  }
+
+  onReset = () => {
+    this.setState({
+      ...this.initialState,
+      filters: { ...this.initialState.filters },
+    })
+  }
+
   render() {
-    const { filters, page } = this.state
+    const { filters, page, total_pages } = this.state
     return (
       <div className="container">
         <div className="row mt-4">
           <div className="col-4">
-            <div className="card" style={{ width: '100%' }}>
+            <div className="card">
               <div className="card-body">
                 <h3>Фильтры:</h3>
                 <Filters
                   page={page}
+                  total_pages={total_pages}
                   filters={filters}
                   onChangeFilters={this.onChangeFilters}
                   onChangePage={this.onChangePage}
+                  onReset={this.onReset}
+                  updateFilters={this.updateFilters}
                 />
               </div>
             </div>
@@ -52,8 +75,10 @@ export default class App extends React.Component {
           <div className="col-8">
             <MoviesList
               page={page}
+              total_pages={total_pages}
               filters={filters}
               onChangePage={this.onChangePage}
+              onChangeTotalPage={this.onChangeTotalPage}
             />
           </div>
         </div>
