@@ -12,8 +12,6 @@ export default class App extends React.Component {
     super()
 
     this.initialState = {
-      user: null,
-      session_id: null,
       filters: {
         sort_by: 'popularity.desc',
         primary_release_year: '',
@@ -22,7 +20,11 @@ export default class App extends React.Component {
       page: 1,
       total_pages: null,
     }
-    this.state = { ...this.initialState }
+    this.state = {
+      ...this.initialState,
+      user: null,
+      session_id: null,
+    }
   }
 
   updateUser = user => {

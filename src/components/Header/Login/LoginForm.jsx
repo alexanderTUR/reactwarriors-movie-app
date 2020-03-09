@@ -31,61 +31,39 @@ export default class LoginForm extends React.Component {
   }
 
   handleBlur = e => {
-    const errors = this.validateFields(e.target.name)
-    if (Object.keys(errors).length > 0) {
+    const name = e.target.name
+    const errors = this.validateFields()
+    const error = errors[name]
+    if (error) {
       this.setState(prevState => ({
         errors: {
           ...prevState.errors,
-          ...errors,
+          [name]: error,
         },
       }))
     }
   }
 
-  validateFields = field => {
+  validateFields = () => {
     const errors = {}
 
-    const validateUsername = () => {
-      if (this.state.username === '') {
-        errors.username = 'Обязательное поле'
-      }
+    if (this.state.username === '') {
+      errors.username = 'Обязательное поле'
     }
 
-    const validatePassword = () => {
-      if (this.state.password === '') {
-        errors.password = 'Обязательное поле'
-      }
+    if (this.state.password === '') {
+      errors.password = 'Обязательное поле'
     }
 
-    const validateRepeatPassword = () => {
-      if (this.state.repeatPassword !== this.state.password) {
-        errors.repeatPassword = 'Должен быть равен паролю'
-      }
+    if (this.state.repeatPassword !== this.state.password) {
+      errors.repeatPassword = 'Должен быть равен паролю'
     }
-
-    switch (field) {
-      case 'submit':
-        validateUsername()
-        validatePassword()
-        validateRepeatPassword()
-        break
-      case 'username':
-        validateUsername()
-        break
-      case 'password':
-        validatePassword()
-        break
-      case 'repeatPassword':
-        validateRepeatPassword()
-        break
-      default:
-        return null
-    }
-
     return errors
   }
 
   onSubmit = async () => {
+    this.validateFields()
+
     this.setState({
       submitting: true,
     })
@@ -130,11 +108,15 @@ export default class LoginForm extends React.Component {
       const user = await fetchApi(
         `${API_URL}/account?api_key=${API_KEY_3}&session_id=${session_id}`
       )
-      this.props.updateUser(user)
 
-      this.setState({
-        submitting: false,
-      })
+      this.setState(
+        {
+          submitting: false,
+        },
+        () => {
+          this.props.updateUser(user)
+        }
+      )
     } catch (error) {
       this.setState({
         submitting: false,
@@ -226,7 +208,7 @@ export default class LoginForm extends React.Component {
 
   onLogin = e => {
     e.preventDefault()
-    const errors = this.validateFields('submit')
+    const errors = this.validateFields()
 
     if (Object.keys(errors).length > 0) {
       this.setState(prevState => ({
@@ -240,6 +222,11 @@ export default class LoginForm extends React.Component {
     }
   }
 
+  getClassForInput = key =>
+    cx('form-control', {
+      'form-control_invalid': this.state.errors[key],
+    })
+
   render() {
     const {
       username,
@@ -248,6 +235,7 @@ export default class LoginForm extends React.Component {
       errors,
       submitting,
     } = this.state
+
     return (
       <div className="form-login-container">
         <form className="form-login">
@@ -258,9 +246,7 @@ export default class LoginForm extends React.Component {
             <label htmlFor="username">Пользователь</label>
             <input
               type="text"
-              className={cx('form-control', {
-                'form-control_invalid': errors.username,
-              })}
+              className={this.getClassForInput('username')}
               id="username"
               placeholder="Пользователь"
               name="username"
@@ -276,9 +262,7 @@ export default class LoginForm extends React.Component {
             <label htmlFor="password">Пароль</label>
             <input
               type="password"
-              className={cx('form-control', {
-                'form-control_invalid': errors.password,
-              })}
+              className={this.getClassForInput('password')}
               id="password"
               placeholder="Пароль"
               name="password"
@@ -294,9 +278,7 @@ export default class LoginForm extends React.Component {
             <label htmlFor="repeatPassword">Повторите пароль</label>
             <input
               type="password"
-              className={cx('form-control', {
-                'form-control_invalid': errors.repeatPassword,
-              })}
+              className={this.getClassForInput('repeatPassword')}
               id="repeatPassword"
               placeholder="Повторите пароль"
               name="repeatPassword"
