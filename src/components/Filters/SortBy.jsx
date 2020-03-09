@@ -6,6 +6,7 @@ export default class SortBy extends React.PureComponent {
     sort_by: PropTypes.string.isRequired,
     onChangeFilters: PropTypes.func.isRequired,
   }
+
   static defaultProps = {
     options: [
       {

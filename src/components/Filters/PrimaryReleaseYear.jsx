@@ -1,9 +1,15 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 
 const getYears = () =>
   Array.from(new Array(70), (_, index) => new Date().getFullYear() - index)
 
 export default class PrimaryReleaseYear extends React.PureComponent {
+  static propTypes = {
+    primary_release_year: PropTypes.string.isRequired,
+    onChangeFilters: PropTypes.func.isRequired,
+  }
+
   static defaultProps = {
     years: getYears(),
   }

@@ -1,9 +1,18 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import MovieItem from './MovieItem'
 import { API_URL, API_KEY_3 } from '../../api/api'
 import queryString from 'querystring'
 
 export default class MovieList extends React.Component {
+  static propTypes = {
+    page: PropTypes.number.isRequired,
+    total_pages: PropTypes.number,
+    filters: PropTypes.object.isRequired,
+    onChangePage: PropTypes.func.isRequired,
+    onChangeTotalPage: PropTypes.func.isRequired,
+  }
+
   constructor() {
     super()
 

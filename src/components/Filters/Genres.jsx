@@ -1,7 +1,13 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import { API_URL, API_KEY_3 } from '../../api/api'
 
 export default class Genres extends React.PureComponent {
+  static propTypes = {
+    with_genres: PropTypes.array.isRequired,
+    updateFilters: PropTypes.func.isRequired,
+  }
+
   constructor() {
     super()
 

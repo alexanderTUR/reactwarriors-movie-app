@@ -1,10 +1,21 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import SortBy from './SortBy'
 import Pagination from './Pagination'
 import PrimaryReleaseYear from './PrimaryReleaseYear'
 import Genres from './Genres'
 
 export default class Filters extends React.Component {
+  static propTypes = {
+    page: PropTypes.number.isRequired,
+    total_pages: PropTypes.number,
+    filters: PropTypes.object.isRequired,
+    onChangeFilters: PropTypes.func.isRequired,
+    onChangePage: PropTypes.func.isRequired,
+    onReset: PropTypes.func.isRequired,
+    updateFilters: PropTypes.func.isRequired,
+  }
+
   render() {
     const {
       filters: { sort_by, with_genres, primary_release_year },
@@ -24,7 +35,6 @@ export default class Filters extends React.Component {
         ></PrimaryReleaseYear>
         <Genres
           with_genres={with_genres}
-          onChangeFilters={onChangeFilters}
           updateFilters={updateFilters}
         ></Genres>
         <Pagination
