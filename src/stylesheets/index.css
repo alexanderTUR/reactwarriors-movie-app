@@ -22,3 +22,11 @@ body {
 .pages-info {
   text-align: center;
 }
+
+.invalid-feedback {
+  display: block;
+}
+
+.form-control_invalid {
+  border-color: #dc3545;
+}

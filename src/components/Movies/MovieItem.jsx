@@ -1,6 +1,11 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 
 export default class MovieItem extends React.Component {
+  static propTypes = {
+    item: PropTypes.object.isRequired,
+  }
+
   render() {
     const { item } = this.props
     const imagePath = item.backdrop_path || item.poster_path
