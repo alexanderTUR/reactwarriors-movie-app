@@ -1,14 +1,8 @@
 import React from 'react'
-import PropTypes from 'prop-types'
 import { Modal, ModalBody } from 'reactstrap'
 import LoginForm from './LoginForm'
 
 export default class Login extends React.Component {
-  static propTypes = {
-    updateUser: PropTypes.func.isRequired,
-    updateSessionId: PropTypes.func.isRequired,
-  }
-
   constructor() {
     super()
     this.state = {
@@ -34,10 +28,7 @@ export default class Login extends React.Component {
         </button>
         <Modal isOpen={this.state.showModal} toggle={this.toggleModal}>
           <ModalBody>
-            <LoginForm
-              updateUser={this.props.updateUser}
-              updateSessionId={this.props.updateSessionId}
-            />
+            <LoginForm />
           </ModalBody>
         </Modal>
       </div>

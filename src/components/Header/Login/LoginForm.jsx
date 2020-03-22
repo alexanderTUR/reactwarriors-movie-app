@@ -1,14 +1,9 @@
 import React from 'react'
-import PropTypes from 'prop-types'
+import AppContextHoc from '../../HOC/AppContextHOC'
 import cx from 'classnames'
-import { API_URL, API_KEY_3, fetchApi } from '../../../api/api'
+import CallApi from '../../../api/api'
 
-export default class LoginForm extends React.Component {
-  static propTypes = {
-    updateUser: PropTypes.func.isRequired,
-    updateSessionId: PropTypes.func.isRequired,
-  }
-
+class LoginForm extends React.Component {
   state = {
     username: '',
     password: '',
@@ -61,150 +56,120 @@ export default class LoginForm extends React.Component {
     return errors
   }
 
-  onSubmit = async () => {
-    this.validateFields()
-
+  onSubmit = () => {
     this.setState({
       submitting: true,
     })
-
-    try {
-      const data = await fetchApi(
-        `${API_URL}/authentication/token/new?api_key=${API_KEY_3}`
-      )
-
-      const result = await fetchApi(
-        `${API_URL}/authentication/token/validate_with_login?api_key=${API_KEY_3}`,
-        {
-          method: 'POST',
-          mode: 'cors',
-          headers: {
-            'Content-type': 'application/json',
-          },
-          body: JSON.stringify({
+    CallApi.get('/authentication/token/new')
+      .then(data => {
+        return CallApi.post('/authentication/token/validate_with_login', {
+          body: {
             username: this.state.username,
             password: this.state.password,
             request_token: data.request_token,
-          }),
-        }
-      )
-
-      const { session_id } = await fetchApi(
-        `${API_URL}/authentication/session/new?api_key=${API_KEY_3}`,
-        {
-          method: 'POST',
-          mode: 'cors',
-          headers: {
-            'Content-type': 'application/json',
           },
-          body: JSON.stringify({
-            request_token: result.request_token,
-          }),
-        }
-      )
-
-      this.props.updateSessionId(session_id)
-
-      const user = await fetchApi(
-        `${API_URL}/account?api_key=${API_KEY_3}&session_id=${session_id}`
-      )
-
-      this.setState(
-        {
-          submitting: false,
-        },
-        () => {
-          this.props.updateUser(user)
-        }
-      )
-    } catch (error) {
-      this.setState({
-        submitting: false,
-        errors: {
-          base: error.status_message,
-        },
+        })
       })
-    }
-
-    // fetchApi(`${API_URL}/authentication/token/new?api_key=${API_KEY_3}`)
-    //   .then(data => {
-    //     return fetchApi(
-    //       `${API_URL}/authentication/token/validate_with_login?api_key=${API_KEY_3}`,
-    //       {
-    //         method: 'POST',
-    //         mode: 'cors',
-    //         headers: {
-    //           'Content-type': 'application/json',
-    //         },
-    //         body: JSON.stringify({
-    //           username: 'alextur',
-    //           password: 'vedgyn-hygnoq-gyhmI1',
-    //           request_token: data.request_token,
-    //         }),
-    //       }
-    //     )
-    //   })
-    //   .then(data => {
-    //     return fetchApi(
-    //       `${API_URL}/authentication/session/new?api_key=${API_KEY_3}`,
-    //       {
-    //         method: 'POST',
-    //         mode: 'cors',
-    //         headers: {
-    //           'Content-type': 'application/json',
-    //         },
-    //         body: JSON.stringify({
-    //           request_token: data.request_token,
-    //         }),
-    //       }
-    //     )
-    //   })
-    //   .then(data => {
-    //     console.log('session', data)
-    //   })
-    //   .catch(error => {
-    //     console.log('error', error)
-    //   })
-    // fetch(`${API_URL}/authentication/token/new?api_key=${API_KEY_3}`)
-    //   .then(response => response.json())
-    //   .then(data => {
-    //     fetch(
-    //       `${API_URL}/authentication/token/validate_with_login?api_key=${API_KEY_3}`,
-    //       {
-    //         method: 'POST',
-    //         mode: 'cors',
-    //         headers: {
-    //           'Content-type': 'application/json',
-    //         },
-    //         body: JSON.stringify({
-    //           username: this.state.username,
-    //           password: this.state.password,
-    //           request_token: data.request_token,
-    //         }),
-    //       }
-    //     )
-    //       .then(response => response.json())
-    //       .then(data => {
-    //         fetch(
-    //           `${API_URL}/authentication/session/new?api_key=${API_KEY_3}`,
-    //           {
-    //             method: 'POST',
-    //             mode: 'cors',
-    //             headers: {
-    //               'Content-type': 'application/json',
-    //             },
-    //             body: JSON.stringify({
-    //               request_token: data.request_token,
-    //             }),
-    //           }
-    //         )
-    //           .then(response => response.json())
-    //           .then(data => {
-    //             console.log(data)
-    //           })
-    //       })
-    //   })
+      .then(data => {
+        return CallApi.post('/authentication/session/new', {
+          body: {
+            request_token: data.request_token,
+          },
+        })
+      })
+      .then(data => {
+        this.props.updateSessionId(data.session_id)
+        return CallApi.get('/account', {
+          params: {
+            session_id: data.session_id,
+          },
+        })
+      })
+      .then(user => {
+        this.setState(
+          {
+            submitting: false,
+          },
+          () => {
+            this.props.updateUser(user)
+          }
+        )
+      })
+      .catch(error => {
+        console.log('error', error)
+        this.setState({
+          submitting: false,
+          errors: {
+            base: error.status_message,
+          },
+        })
+      })
   }
+
+  // onSubmit = async () => {
+  //   this.validateFields()
+
+  //   this.setState({
+  //     submitting: true,
+  //   })
+
+  //   try {
+  //     const data = await fetchApi(
+  //       `${API_URL}/authentication/token/new?api_key=${API_KEY_3}`
+  //     )
+
+  //     const result = await fetchApi(
+  //       `${API_URL}/authentication/token/validate_with_login?api_key=${API_KEY_3}`,
+  //       {
+  //         method: 'POST',
+  //         mode: 'cors',
+  //         headers: {
+  //           'Content-type': 'application/json',
+  //         },
+  //         body: JSON.stringify({
+  //           username: this.state.username,
+  //           password: this.state.password,
+  //           request_token: data.request_token,
+  //         }),
+  //       }
+  //     )
+
+  //     const { session_id } = await fetchApi(
+  //       `${API_URL}/authentication/session/new?api_key=${API_KEY_3}`,
+  //       {
+  //         method: 'POST',
+  //         mode: 'cors',
+  //         headers: {
+  //           'Content-type': 'application/json',
+  //         },
+  //         body: JSON.stringify({
+  //           request_token: result.request_token,
+  //         }),
+  //       }
+  //     )
+
+  //     this.props.updateSessionId(session_id)
+
+  //     const user = await fetchApi(
+  //       `${API_URL}/account?api_key=${API_KEY_3}&session_id=${session_id}`
+  //     )
+
+  //     this.setState(
+  //       {
+  //         submitting: false,
+  //       },
+  //       () => {
+  //         this.props.updateUser(user)
+  //       }
+  //     )
+  //   } catch (error) {
+  //     this.setState({
+  //       submitting: false,
+  //       errors: {
+  //         base: error.status_message,
+  //       },
+  //     })
+  //   }
 
   onLogin = e => {
     e.preventDefault()
@@ -306,3 +271,5 @@ export default class LoginForm extends React.Component {
     )
   }
 }
+
+export default AppContextHoc(LoginForm)
