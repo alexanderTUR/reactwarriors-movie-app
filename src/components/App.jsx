@@ -87,6 +87,9 @@ export default class App extends React.Component {
       session_id,
     }
     if (session_id) {
+      this.setState({
+        session_id,
+      })
       CallApi.get('/account', {
         params: queryStringParams,
       }).then(user => {
