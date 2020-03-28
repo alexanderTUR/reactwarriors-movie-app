@@ -36,17 +36,17 @@ body {
   justify-content: center;
 }
 
-.card-footer__btn {
+.ui-btn {
   appearance: none;
   border: none;
   background-color: transparent;
-
+  cursor: pointer;
 }
 
-.card-footer__btn:focus {
+.ui-btn:focus {
   outline: none;
 }
 
-.card-footer__btn + .card-footer__btn {
+.card-footer__container .ui-btn + .card-footer__container .ui-btn {
   margin-left: 16px;
 }

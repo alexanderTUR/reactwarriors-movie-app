@@ -95,6 +95,10 @@ class LoginForm extends React.Component {
           }
         )
       })
+      .then(() => {
+        this.props.getWatchlist()
+        this.props.getFavorite()
+      })
       .catch(error => {
         console.log('error', error)
         this.setState({

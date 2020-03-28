@@ -23,7 +23,9 @@ export default class App extends React.Component {
     this.state = {
       ...this.initialState,
       user: null,
-      session_id: null,
+      session_id: cookies.get('session_id') || null,
+      watchlist: [],
+      favorite: [],
     }
   }
 
@@ -45,6 +47,43 @@ export default class App extends React.Component {
     this.setState({
       session_id: null,
       user: null,
+      watchlist: [],
+      favorite: [],
+    })
+  }
+
+  getUsersMovieList = listName => {
+    const { session_id } = this.state
+    const { id } = this.state.user
+    const queryStringParams = {
+      session_id,
+      sort_by: 'created_at.asc',
+      page: 1,
+    }
+    CallApi.get(`/account/${id}/${listName}/movies`, {
+      params: queryStringParams,
+    }).then(response => {
+      this.setState({
+        [listName]: response.results,
+      })
+    })
+  }
+
+  updateUsersMovieList = (listName, movieId, shouldBeAdded) => {
+    const { session_id } = this.state
+    const { id } = this.state.user
+    const queryStringParams = {
+      session_id,
+    }
+    CallApi.post(`/account/${id}/${listName}`, {
+      params: queryStringParams,
+      body: {
+        media_type: 'movie',
+        media_id: movieId,
+        [listName]: shouldBeAdded,
+      },
+    }).then(() => {
+      this.getUsersMovieList(listName)
     })
   }
 
@@ -82,7 +121,7 @@ export default class App extends React.Component {
   }
 
   componentDidMount() {
-    const session_id = cookies.get('session_id')
+    const { session_id } = this.state
     const queryStringParams = {
       session_id,
     }
@@ -92,22 +131,39 @@ export default class App extends React.Component {
       })
       CallApi.get('/account', {
         params: queryStringParams,
-      }).then(user => {
-        this.updateUser(user)
       })
+        .then(user => {
+          this.updateUser(user)
+        })
+        .then(() => {
+          this.getUsersMovieList('favorite')
+          this.getUsersMovieList('watchlist')
+        })
     }
   }
 
   render() {
-    const { filters, page, total_pages, user, session_id } = this.state
+    const {
+      filters,
+      page,
+      total_pages,
+      user,
+      session_id,
+      watchlist,
+      favorite,
+    } = this.state
     return (
       <AppContext.Provider
         value={{
           user,
           session_id,
+          watchlist,
+          favorite,
           updateUser: this.updateUser,
           updateSessionId: this.updateSessionId,
           onLogOut: this.onLogOut,
+          getUsersMovieList: this.getUsersMovieList,
+          updateUsersMovieList: this.updateUsersMovieList,
         }}
       >
         <div>

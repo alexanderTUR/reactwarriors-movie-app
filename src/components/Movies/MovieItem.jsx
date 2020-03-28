@@ -1,37 +1,19 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+import AppContextHoc from '../HOC/AppContextHOC'
 // import CallApi from '../../api/api'
-import { Star, StarBorder, Bookmark, BookmarkBorder } from '@material-ui/icons'
+import FavoriteButton from '../UIButtons/FavoriteButton'
+import WatchlistButton from '../UIButtons/WatchlistButton'
 
-export default class MovieItem extends React.Component {
-  constructor() {
-    super()
-    this.state = {
-      movieInFavourite: false,
-      movieInWatchlist: false,
-    }
-  }
-
+class MovieItem extends React.Component {
   static propTypes = {
     item: PropTypes.object.isRequired,
   }
 
-  toggleMovieInFavourite = () => {
-    this.setState(prevState => ({
-      movieInFavourite: !prevState.movieInFavourite,
-    }))
-  }
-
-  toggleMovieInWatchlist = () => {
-    this.setState(prevState => ({
-      movieInWatchlist: !prevState.movieInWatchlist,
-    }))
-  }
-
   render() {
-    const { item } = this.props
+    const { item, user } = this.props
     const imagePath = item.backdrop_path || item.poster_path
-    const { movieInFavourite, movieInWatchlist } = this.state
+
     return (
       <div className="card">
         <img
@@ -43,25 +25,17 @@ export default class MovieItem extends React.Component {
           <h6 className="card-title">{item.title}</h6>
           <div className="card-text">Рейтинг: {item.vote_average}</div>
         </div>
-        <div className="card-footer">
-          <div className="card-footer__container">
-            <button
-              className="card-footer__btn"
-              type="button"
-              onClick={this.toggleMovieInFavourite}
-            >
-              {movieInFavourite ? <Star /> : <StarBorder />}
-            </button>
-            <button
-              className="card-footer__btn"
-              type="button"
-              onClick={this.toggleMovieInWatchlist}
-            >
-              {movieInWatchlist ? <Bookmark /> : <BookmarkBorder />}
-            </button>
+        {user ? (
+          <div className="card-footer">
+            <div className="card-footer__container">
+              <WatchlistButton id={item.id} />
+              <FavoriteButton id={item.id} />
+            </div>
           </div>
-        </div>
+        ) : null}
       </div>
     )
   }
 }
+
+export default AppContextHoc(MovieItem)

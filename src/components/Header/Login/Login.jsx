@@ -1,8 +1,9 @@
 import React from 'react'
 import { Modal, ModalBody } from 'reactstrap'
 import LoginForm from './LoginForm'
+import AppContextHoc from '../../HOC/AppContextHOC'
 
-export default class Login extends React.Component {
+class Login extends React.Component {
   constructor() {
     super()
     this.state = {
@@ -14,6 +15,15 @@ export default class Login extends React.Component {
     this.setState(prewState => ({
       showModal: !prewState.showModal,
     }))
+  }
+
+  componentDidMount() {
+    const { session_id } = this.props
+    if (!session_id) {
+      this.setState({
+        showModal: true,
+      })
+    }
   }
 
   render() {
@@ -35,3 +45,5 @@ export default class Login extends React.Component {
     )
   }
 }
+
+export default AppContextHoc(Login)
