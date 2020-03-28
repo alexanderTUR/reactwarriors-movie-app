@@ -57,8 +57,6 @@ export default class App extends React.Component {
     const { id } = this.state.user
     const queryStringParams = {
       session_id,
-      sort_by: 'created_at.asc',
-      page: 1,
     }
     CallApi.get(`/account/${id}/${listName}/movies`, {
       params: queryStringParams,
