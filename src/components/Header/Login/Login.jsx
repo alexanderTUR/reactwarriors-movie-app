@@ -4,39 +4,14 @@ import LoginForm from './LoginForm'
 import AppContextHoc from '../../HOC/AppContextHOC'
 
 class Login extends React.Component {
-  constructor() {
-    super()
-    this.state = {
-      showModal: false,
-    }
-  }
-
-  toggleModal = () => {
-    this.setState(prewState => ({
-      showModal: !prewState.showModal,
-    }))
-  }
-
-  componentDidMount() {
-    const { session_id } = this.props
-    if (!session_id) {
-      this.setState({
-        showModal: true,
-      })
-    }
-  }
-
   render() {
+    const { showModal, toggleModal } = this.props
     return (
       <div className="ml-auto">
-        <button
-          type="button"
-          className="btn btn-success"
-          onClick={this.toggleModal}
-        >
+        <button type="button" className="btn btn-success" onClick={toggleModal}>
           Login
         </button>
-        <Modal isOpen={this.state.showModal} toggle={this.toggleModal}>
+        <Modal isOpen={showModal} toggle={toggleModal}>
           <ModalBody>
             <LoginForm />
           </ModalBody>

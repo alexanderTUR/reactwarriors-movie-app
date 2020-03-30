@@ -26,7 +26,14 @@ export default class App extends React.Component {
       session_id: cookies.get('session_id') || null,
       watchlist: [],
       favorite: [],
+      showModal: false,
     }
+  }
+
+  toggleModal = () => {
+    this.setState(prewState => ({
+      showModal: !prewState.showModal,
+    }))
   }
 
   updateUser = user => {
@@ -52,36 +59,29 @@ export default class App extends React.Component {
     })
   }
 
-  getUsersMovieList = listName => {
-    const { session_id } = this.state
-    const { id } = this.state.user
+  getFavoriteMovies = (user, session_id) => {
     const queryStringParams = {
       session_id,
     }
-    CallApi.get(`/account/${id}/${listName}/movies`, {
+    CallApi.get(`/account/${user.id}/favorite/movies`, {
       params: queryStringParams,
     }).then(response => {
       this.setState({
-        [listName]: response.results,
+        favorite: response.results,
       })
     })
   }
 
-  updateUsersMovieList = (listName, movieId, shouldBeAdded) => {
-    const { session_id } = this.state
-    const { id } = this.state.user
+  getWatchlistMovies = (user, session_id) => {
     const queryStringParams = {
       session_id,
     }
-    CallApi.post(`/account/${id}/${listName}`, {
+    CallApi.get(`/account/${user.id}/watchlist/movies`, {
       params: queryStringParams,
-      body: {
-        media_type: 'movie',
-        media_id: movieId,
-        [listName]: shouldBeAdded,
-      },
-    }).then(() => {
-      this.getUsersMovieList(listName)
+    }).then(response => {
+      this.setState({
+        watchlist: response.results,
+      })
     })
   }
 
@@ -112,10 +112,7 @@ export default class App extends React.Component {
   }
 
   onReset = () => {
-    this.setState({
-      ...this.initialState,
-      filters: { ...this.initialState.filters },
-    })
+    this.setState(this.initialState)
   }
 
   componentDidMount() {
@@ -129,14 +126,16 @@ export default class App extends React.Component {
       })
       CallApi.get('/account', {
         params: queryStringParams,
+      }).then(user => {
+        this.updateUser(user)
       })
-        .then(user => {
-          this.updateUser(user)
-        })
-        .then(() => {
-          this.getUsersMovieList('favorite')
-          this.getUsersMovieList('watchlist')
-        })
+    }
+  }
+
+  componentDidUpdate(_, prevState) {
+    if (prevState.user === null && this.state.user) {
+      this.getFavoriteMovies(this.state.user, this.state.session_id)
+      this.getWatchlistMovies(this.state.user, this.state.session_id)
     }
   }
 
@@ -149,6 +148,7 @@ export default class App extends React.Component {
       session_id,
       watchlist,
       favorite,
+      showModal,
     } = this.state
     return (
       <AppContext.Provider
@@ -157,11 +157,13 @@ export default class App extends React.Component {
           session_id,
           watchlist,
           favorite,
+          showModal,
           updateUser: this.updateUser,
           updateSessionId: this.updateSessionId,
           onLogOut: this.onLogOut,
-          getUsersMovieList: this.getUsersMovieList,
-          updateUsersMovieList: this.updateUsersMovieList,
+          getFavoriteMovies: this.getFavoriteMovies,
+          getWatchlistMovies: this.getWatchlistMovies,
+          toggleModal: this.toggleModal,
         }}
       >
         <div>

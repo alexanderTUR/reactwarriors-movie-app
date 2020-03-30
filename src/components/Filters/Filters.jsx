@@ -7,9 +7,9 @@ import Genres from './Genres'
 
 export default class Filters extends React.Component {
   static propTypes = {
+    filters: PropTypes.object.isRequired,
     page: PropTypes.number.isRequired,
     total_pages: PropTypes.number,
-    filters: PropTypes.object.isRequired,
     onChangeFilters: PropTypes.func.isRequired,
     onChangePage: PropTypes.func.isRequired,
     onReset: PropTypes.func.isRequired,

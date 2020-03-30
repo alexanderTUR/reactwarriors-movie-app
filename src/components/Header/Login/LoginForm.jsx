@@ -95,10 +95,6 @@ class LoginForm extends React.Component {
           }
         )
       })
-      .then(() => {
-        this.props.getUsersMovieList('favorite')
-        this.props.getUsersMovieList('watchlist')
-      })
       .catch(error => {
         console.log('error', error)
         this.setState({
