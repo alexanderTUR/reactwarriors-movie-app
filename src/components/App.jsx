@@ -1,4 +1,6 @@
 import React from 'react'
+import { Modal, ModalBody } from 'reactstrap'
+import LoginForm from './Header/Login/LoginForm'
 import Filters from './Filters/Filters'
 import Header from './Header/Header'
 import CallApi from '../api/api'
@@ -56,6 +58,7 @@ export default class App extends React.Component {
       user: null,
       watchlist: [],
       favorite: [],
+      showModal: false,
     })
   }
 
@@ -63,7 +66,7 @@ export default class App extends React.Component {
     const queryStringParams = {
       session_id,
     }
-    CallApi.get(`/account/${user.id}/favorite/movies`, {
+    return CallApi.get(`/account/${user.id}/favorite/movies`, {
       params: queryStringParams,
     }).then(response => {
       this.setState({
@@ -76,7 +79,7 @@ export default class App extends React.Component {
     const queryStringParams = {
       session_id,
     }
-    CallApi.get(`/account/${user.id}/watchlist/movies`, {
+    return CallApi.get(`/account/${user.id}/watchlist/movies`, {
       params: queryStringParams,
     }).then(response => {
       this.setState({
@@ -167,7 +170,7 @@ export default class App extends React.Component {
         }}
       >
         <div>
-          <Header user={user} />
+          <Header />
           <div className="container">
             <div className="row mt-4">
               <div className="col-4">
@@ -197,6 +200,13 @@ export default class App extends React.Component {
               </div>
             </div>
           </div>
+          {!user && (
+            <Modal isOpen={showModal} toggle={this.toggleModal}>
+              <ModalBody>
+                <LoginForm />
+              </ModalBody>
+            </Modal>
+          )}
         </div>
       </AppContext.Provider>
     )

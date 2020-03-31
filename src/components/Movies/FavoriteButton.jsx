@@ -11,9 +11,9 @@ class FavoriteButton extends React.Component {
     }
   }
 
-  updateFavoriteList = (movieId, isFavorite) => {
-    const { session_id, user, toggleModal, getFavoriteMovies } = this.props
-    if (!user) {
+  updateFavoriteList = () => {
+    const { session_id, user, toggleModal, getFavoriteMovies, id } = this.props
+    if (!session_id) {
       toggleModal()
       return
     }
@@ -27,13 +27,11 @@ class FavoriteButton extends React.Component {
       params: queryStringParams,
       body: {
         media_type: 'movie',
-        media_id: movieId,
-        favorite: isFavorite,
+        media_id: id,
+        favorite: !this.isFavorite(),
       },
     })
-      .then(() => {
-        getFavoriteMovies(user, session_id)
-      })
+      .then(() => getFavoriteMovies(user, session_id))
       .then(() => {
         this.setState({
           loading: false,
@@ -42,7 +40,7 @@ class FavoriteButton extends React.Component {
   }
 
   toggleActiveButton = () => {
-    this.updateFavoriteList(this.props.id, !this.isFavorite())
+    this.updateFavoriteList()
   }
 
   isFavorite = () =>

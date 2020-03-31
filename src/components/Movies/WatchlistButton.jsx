@@ -11,8 +11,8 @@ class WatchlistButton extends React.Component {
     }
   }
 
-  updateWatchlist = (movieId, isInWatchlist) => {
-    const { session_id, user, toggleModal } = this.props
+  updateWatchlist = () => {
+    const { session_id, user, toggleModal, getWatchlistMovies, id } = this.props
     if (!user) {
       toggleModal()
       return
@@ -27,13 +27,11 @@ class WatchlistButton extends React.Component {
       params: queryStringParams,
       body: {
         media_type: 'movie',
-        media_id: movieId,
-        watchlist: isInWatchlist,
+        media_id: id,
+        watchlist: !this.isInWatchlist(),
       },
     })
-      .then(() => {
-        this.props.getWatchlistMovies(user, session_id)
-      })
+      .then(() => getWatchlistMovies(user, session_id))
       .then(() => {
         this.setState({
           loading: false,
@@ -42,7 +40,7 @@ class WatchlistButton extends React.Component {
   }
 
   toggleActiveButton = () => {
-    this.updateWatchlist(this.props.id, !this.isInWatchlist())
+    this.updateWatchlist()
   }
 
   isInWatchlist = () =>
