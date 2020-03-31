@@ -1,21 +1,30 @@
 import React from 'react'
-import Login from './Login/Login'
 import UserMenu from './UserMenu'
-import PropTypes from 'prop-types'
+import AppContextHoc from '../HOC/AppContextHOC'
 
 class Header extends React.Component {
-  static propTypes = {
-    user: PropTypes.object,
-  }
-
   render() {
-    const { user } = this.props
+    const { user, toggleModal } = this.props
     return (
       <nav className="navbar navbar-dark bg-primary">
-        <div className="container">{user ? <UserMenu /> : <Login />}</div>
+        <div className="container">
+          {user ? (
+            <UserMenu />
+          ) : (
+            <div className="ml-auto">
+              <button
+                type="button"
+                className="btn btn-success"
+                onClick={toggleModal}
+              >
+                Login
+              </button>
+            </div>
+          )}
+        </div>
       </nav>
     )
   }
 }
 
-export default Header
+export default AppContextHoc(Header)

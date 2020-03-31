@@ -30,3 +30,23 @@ body {
 .form-control_invalid {
   border-color: #dc3545;
 }
+
+.card-footer__container {
+  display: flex;
+  justify-content: center;
+}
+
+.ui-btn {
+  appearance: none;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+}
+
+.ui-btn:focus {
+  outline: none;
+}
+
+.card-footer__container .ui-btn + .card-footer__container .ui-btn {
+  margin-left: 16px;
+}

@@ -1,4 +1,6 @@
 import React from 'react'
+import { Modal, ModalBody } from 'reactstrap'
+import LoginForm from './Header/Login/LoginForm'
 import Filters from './Filters/Filters'
 import Header from './Header/Header'
 import CallApi from '../api/api'
@@ -23,8 +25,17 @@ export default class App extends React.Component {
     this.state = {
       ...this.initialState,
       user: null,
-      session_id: null,
+      session_id: cookies.get('session_id') || null,
+      watchlist: [],
+      favorite: [],
+      showModal: false,
     }
+  }
+
+  toggleModal = () => {
+    this.setState(prewState => ({
+      showModal: !prewState.showModal,
+    }))
   }
 
   updateUser = user => {
@@ -45,6 +56,35 @@ export default class App extends React.Component {
     this.setState({
       session_id: null,
       user: null,
+      watchlist: [],
+      favorite: [],
+      showModal: false,
+    })
+  }
+
+  getFavoriteMovies = (user, session_id) => {
+    const queryStringParams = {
+      session_id,
+    }
+    return CallApi.get(`/account/${user.id}/favorite/movies`, {
+      params: queryStringParams,
+    }).then(response => {
+      this.setState({
+        favorite: response.results,
+      })
+    })
+  }
+
+  getWatchlistMovies = (user, session_id) => {
+    const queryStringParams = {
+      session_id,
+    }
+    return CallApi.get(`/account/${user.id}/watchlist/movies`, {
+      params: queryStringParams,
+    }).then(response => {
+      this.setState({
+        watchlist: response.results,
+      })
     })
   }
 
@@ -75,18 +115,18 @@ export default class App extends React.Component {
   }
 
   onReset = () => {
-    this.setState({
-      ...this.initialState,
-      filters: { ...this.initialState.filters },
-    })
+    this.setState(this.initialState)
   }
 
   componentDidMount() {
-    const session_id = cookies.get('session_id')
+    const { session_id } = this.state
     const queryStringParams = {
       session_id,
     }
     if (session_id) {
+      this.setState({
+        session_id,
+      })
       CallApi.get('/account', {
         params: queryStringParams,
       }).then(user => {
@@ -95,20 +135,42 @@ export default class App extends React.Component {
     }
   }
 
+  componentDidUpdate(_, prevState) {
+    if (prevState.user === null && this.state.user) {
+      this.getFavoriteMovies(this.state.user, this.state.session_id)
+      this.getWatchlistMovies(this.state.user, this.state.session_id)
+    }
+  }
+
   render() {
-    const { filters, page, total_pages, user, session_id } = this.state
+    const {
+      filters,
+      page,
+      total_pages,
+      user,
+      session_id,
+      watchlist,
+      favorite,
+      showModal,
+    } = this.state
     return (
       <AppContext.Provider
         value={{
           user,
           session_id,
+          watchlist,
+          favorite,
+          showModal,
           updateUser: this.updateUser,
           updateSessionId: this.updateSessionId,
           onLogOut: this.onLogOut,
+          getFavoriteMovies: this.getFavoriteMovies,
+          getWatchlistMovies: this.getWatchlistMovies,
+          toggleModal: this.toggleModal,
         }}
       >
         <div>
-          <Header user={user} />
+          <Header />
           <div className="container">
             <div className="row mt-4">
               <div className="col-4">
@@ -138,6 +200,13 @@ export default class App extends React.Component {
               </div>
             </div>
           </div>
+          {!user && (
+            <Modal isOpen={showModal} toggle={this.toggleModal}>
+              <ModalBody>
+                <LoginForm />
+              </ModalBody>
+            </Modal>
+          )}
         </div>
       </AppContext.Provider>
     )
