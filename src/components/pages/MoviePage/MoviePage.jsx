@@ -37,7 +37,7 @@ export default class MoviePage extends React.Component {
     return (
       <div>
         {this.state.loading ? (
-          <div className="container">
+          <div className="container mt-5">
             <div className="page-loader-container">
               <Loader type="Puff" color="#157ffb" height={100} width={100} />
             </div>
