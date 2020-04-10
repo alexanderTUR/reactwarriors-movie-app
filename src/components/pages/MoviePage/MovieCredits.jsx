@@ -1,7 +1,8 @@
 import React, { Component } from 'react'
-import Loader from 'react-loader-spinner'
 import emptyImage from '../../../img/no-image.png'
 import CallApi from '../../../api/api'
+import LoaderSpinner from '../../ui/Loader'
+import { withRouter } from 'react-router-dom'
 
 class MovieCredits extends Component {
   constructor() {
@@ -13,9 +14,8 @@ class MovieCredits extends Component {
     }
   }
 
-  getCredits = () => {
-    const { movie } = this.props
-    CallApi.get(`/movie/${movie.id}/credits`).then(credits => {
+  getCredits = movieId => {
+    CallApi.get(`/movie/${movieId}/credits`).then(credits => {
       this.setState({
         credits,
         loading: false,
@@ -24,15 +24,7 @@ class MovieCredits extends Component {
   }
 
   componentDidMount() {
-    if (Object.keys(this.props.movie).length) {
-      this.getCredits()
-    }
-  }
-
-  componentDidUpdate(prevProps) {
-    if (this.props.movie !== prevProps.movie) {
-      this.getCredits()
-    }
+    this.getCredits(this.props.match.params.id)
   }
 
   render() {
@@ -40,9 +32,7 @@ class MovieCredits extends Component {
     return (
       <div className="tabs-content mt-5">
         {this.state.loading ? (
-          <div className="page-loader-container">
-            <Loader type="Puff" color="#157ffb" height={100} width={100} />
-          </div>
+          <LoaderSpinner />
         ) : (
           <div className="row">
             {cast.length ? (
@@ -72,4 +62,5 @@ class MovieCredits extends Component {
   }
 }
 
-export default MovieCredits
+const MovieCreditsWithRouter = withRouter(MovieCredits)
+export default MovieCreditsWithRouter

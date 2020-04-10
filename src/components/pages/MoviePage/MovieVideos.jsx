@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import CallApi from '../../../api/api'
-import Loader from 'react-loader-spinner'
+import LoaderSpinner from '../../ui/Loader'
+import { withRouter } from 'react-router-dom'
 
 class MovieVideos extends Component {
   constructor() {
@@ -12,9 +13,8 @@ class MovieVideos extends Component {
     }
   }
 
-  getVideos = () => {
-    const { movie } = this.props
-    CallApi.get(`/movie/${movie.id}/videos`).then(videos => {
+  getVideos = movieId => {
+    CallApi.get(`/movie/${movieId}/videos`).then(videos => {
       this.setState({
         videos: videos.results,
         loading: false,
@@ -23,29 +23,21 @@ class MovieVideos extends Component {
   }
 
   componentDidMount() {
-    if (Object.keys(this.props.movie).length) {
-      this.getVideos()
-    }
-  }
-
-  componentDidUpdate(prevProps) {
-    if (this.props.movie !== prevProps.movie) {
-      this.getVideos()
-    }
+    this.getVideos(this.props.match.params.id)
   }
 
   render() {
     const { videos } = this.state
+
     return (
       <div className="tabs-content mt-5">
         {this.state.loading ? (
-          <div className="page-loader-container">
-            <Loader type="Puff" color="#157ffb" height={100} width={100} />
-          </div>
+          <LoaderSpinner />
         ) : (
           <div className="row">
             {videos.length ? (
               videos.map(video => {
+                // console.log(video.site)
                 return (
                   <div key={video.id} className="col-12 mb-3 video-card">
                     <p>{video.name}</p>
@@ -61,7 +53,7 @@ class MovieVideos extends Component {
                 )
               })
             ) : (
-              <div>Нет доступных видео материалов</div>
+              <div className="col-12 mb-3">Нет доступных видео материалов</div>
             )}
           </div>
         )}
@@ -70,4 +62,6 @@ class MovieVideos extends Component {
   }
 }
 
-export default MovieVideos
+const MovieVideosWithRouter = withRouter(MovieVideos)
+
+export default MovieVideosWithRouter

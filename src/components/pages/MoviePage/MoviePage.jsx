@@ -1,10 +1,12 @@
 import React from 'react'
 import CallApi from '../../../api/api'
-import FavoriteButton from '../../Movies/FavoriteButton'
-import WatchlistButton from '../../Movies/WatchlistButton'
-import MovieTabs from './MovieTabs'
-import emptyImage from '../../../img/no-image.png'
-import Loader from 'react-loader-spinner'
+import MovieSummary from './MovieSummary'
+import MovieNavigation from './MovieNavigation'
+import LoaderSpinner from '../../ui/Loader'
+import { Route, Switch } from 'react-router-dom'
+import MovieDetail from './MovieDetail'
+import MovieCredits from './MovieCredits'
+import MovieVideos from './MovieVideos'
 
 export default class MoviePage extends React.Component {
   constructor() {
@@ -17,13 +19,7 @@ export default class MoviePage extends React.Component {
   }
 
   componentDidMount() {
-    const movie = this.props.match.params
-    const queryStringParams = {
-      language: 'ru-RU',
-    }
-    CallApi.get(`/movie/${movie.id}`, {
-      params: queryStringParams,
-    }).then(movie => {
+    CallApi.get(`/movie/${this.props.match.params.id}`).then(movie => {
       this.setState({
         movie,
         loading: false,
@@ -33,44 +29,30 @@ export default class MoviePage extends React.Component {
 
   render() {
     const { movie } = this.state
-    const imagePath = movie.backdrop_path || movie.poster_path
     return (
-      <div>
+      <div className="container mt-5">
         {this.state.loading ? (
-          <div className="container mt-5">
-            <div className="page-loader-container">
-              <Loader type="Puff" color="#157ffb" height={100} width={100} />
-            </div>
-          </div>
+          <LoaderSpinner />
         ) : (
-          <div className="container">
-            <div className="row mt-3">
-              <div className="col-5">
-                <img
-                  className="movie-image"
-                  src={
-                    imagePath
-                      ? `https://image.tmdb.org/t/p/w500${imagePath}`
-                      : emptyImage
-                  }
-                  alt={movie.title}
-                />
-              </div>
-              <div className="col-7">
-                <h1>{movie.title}</h1>
-                <p>{movie.overview}</p>
-                <div>
-                  <WatchlistButton id={movie.id} />
-                  <FavoriteButton id={movie.id} />
-                </div>
-              </div>
-            </div>
+          <>
+            <MovieSummary movie={movie} />
             <div className="row mt-5">
               <div className="col-12">
-                <MovieTabs movie={movie} />
+                <MovieNavigation />
+                <Switch>
+                  <Route path="/movie/:id/details">
+                    <MovieDetail movie={movie} />
+                  </Route>
+                  <Route path="/movie/:id/videos">
+                    <MovieVideos />
+                  </Route>
+                  <Route path="/movie/:id/credits">
+                    <MovieCredits />
+                  </Route>
+                </Switch>
               </div>
             </div>
-          </div>
+          </>
         )}
       </div>
     )
