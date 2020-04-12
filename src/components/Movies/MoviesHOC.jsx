@@ -23,7 +23,6 @@ export default Component =>
     getMovies = (filters, page) => {
       const { sort_by, with_genres, primary_release_year } = filters
       const queryStringParams = {
-        language: 'ru-RU',
         sort_by,
         page,
         primary_release_year,

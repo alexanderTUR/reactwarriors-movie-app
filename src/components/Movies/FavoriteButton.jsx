@@ -13,7 +13,7 @@ class FavoriteButton extends React.Component {
 
   updateFavoriteList = () => {
     const { session_id, user, toggleModal, getFavoriteMovies, id } = this.props
-    if (!session_id) {
+    if (!user) {
       toggleModal()
       return
     }
