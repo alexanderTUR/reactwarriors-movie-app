@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
-import emptyImage from '../../../img/no-image.png'
 import CallApi from '../../../api/api'
 import LoaderSpinner from '../../ui/Loader'
+import MovieImage from '../../ui/MovieImage'
 import { withRouter } from 'react-router-dom'
 
 class MovieCredits extends Component {
@@ -40,13 +40,9 @@ class MovieCredits extends Component {
                 return (
                   <div key={actor.id} className="col-2 mb-3 actor-card">
                     <p>{actor.name}</p>
-                    <img
+                    <MovieImage
                       className="actor-card__image"
-                      src={
-                        actor.profile_path
-                          ? `https://image.tmdb.org/t/p/w500${actor.profile_path}`
-                          : emptyImage
-                      }
+                      src={actor.profile_path}
                       alt={actor.name}
                     />
                   </div>

@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import FavoriteButton from '../../Movies/FavoriteButton'
 import WatchlistButton from '../../Movies/WatchlistButton'
-import emptyImage from '../../../img/no-image.png'
+import MovieImage from '../../ui/MovieImage'
 
 class MovieSummary extends Component {
   render() {
@@ -10,14 +10,10 @@ class MovieSummary extends Component {
     return (
       <div className="row mt-3">
         <div className="col-5">
-          <img
-            className="movie-image"
-            src={
-              imagePath
-                ? `https://image.tmdb.org/t/p/w500${imagePath}`
-                : emptyImage
-            }
+          <MovieImage
+            src={imagePath}
             alt={movie.title}
+            className="movie-image"
           />
         </div>
         <div className="col-7">

@@ -28,6 +28,16 @@ class MovieVideos extends Component {
 
   render() {
     const { videos } = this.state
+    const getVideoPath = site => {
+      switch (site) {
+        case 'YouTube':
+          return 'https://www.youtube.com/embed/'
+        case 'Vimeo':
+          return 'https://player.vimeo.com/video/'
+        default:
+          return null
+      }
+    }
 
     return (
       <div className="tabs-content mt-5">
@@ -37,13 +47,12 @@ class MovieVideos extends Component {
           <div className="row">
             {videos.length ? (
               videos.map(video => {
-                // console.log(video.site)
                 return (
                   <div key={video.id} className="col-12 mb-3 video-card">
                     <p>{video.name}</p>
                     <div className="video-card__video-container">
                       <iframe
-                        src={`https://www.youtube.com/embed/${video.key}`}
+                        src={`${getVideoPath(video.site)}${video.key}`}
                         allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
                         allowFullScreen
                         title="video.name"
