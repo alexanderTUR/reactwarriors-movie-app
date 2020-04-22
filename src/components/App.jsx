@@ -3,19 +3,18 @@ import { Modal, ModalBody } from 'reactstrap'
 import LoginForm from './Header/Login/LoginForm'
 import Header from './Header/Header'
 import CallApi from '../api/api'
-import Cookies from 'universal-cookie'
 import MoviesPage from './pages/MoviesPage/MoviesPage'
 import MoviePage from './pages/MoviePage/MoviePage'
 import { BrowserRouter, Route } from 'react-router-dom'
+import Cookies from 'universal-cookie'
 
 const cookies = new Cookies()
+
 export const AppContext = React.createContext()
 export default class App extends React.Component {
   constructor() {
     super()
     this.state = {
-      user: null,
-      session_id: cookies.get('session_id') || null,
       watchlist: [],
       favorite: [],
       showModal: false,
@@ -28,15 +27,21 @@ export default class App extends React.Component {
     }))
   }
 
-  updateUser = user => {
+  // updateUser = user => {
+  //   this.setState({
+  //     user,
+  //   })
+  // }
+
+  // updateSessionId = session_id => {
+  //   this.setState({
+  //     session_id,
+  //   })
+  // }
+
+  updateAuth = (user, session_id) => {
     this.setState({
       user,
-    })
-  }
-
-  updateSessionId = session_id => {
-    cookies.set('session_id', session_id, { path: '/', maxAge: 2592000 })
-    this.setState({
       session_id,
     })
   }
@@ -49,6 +54,7 @@ export default class App extends React.Component {
       watchlist: [],
       favorite: [],
       showModal: false,
+      isAuth: false,
     })
   }
 
@@ -79,7 +85,7 @@ export default class App extends React.Component {
   }
 
   componentDidMount() {
-    const { session_id } = this.state
+    const { session_id } = this.props
     const queryStringParams = {
       session_id,
     }
@@ -90,7 +96,7 @@ export default class App extends React.Component {
       CallApi.get('/account', {
         params: queryStringParams,
       }).then(user => {
-        this.updateUser(user)
+        this.props.updateAuth(user, session_id)
       })
     }
   }
@@ -103,7 +109,8 @@ export default class App extends React.Component {
   }
 
   render() {
-    const { user, session_id, watchlist, favorite, showModal } = this.state
+    const { watchlist, favorite, showModal } = this.state
+    const { user, session_id } = this.props.store.getState()
     return (
       <BrowserRouter>
         <AppContext.Provider
