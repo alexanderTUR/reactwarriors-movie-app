@@ -12,9 +12,16 @@ class WatchlistButton extends React.Component {
   }
 
   updateWatchlist = () => {
-    const { session_id, user, toggleModal, getWatchlistMovies, id } = this.props
-    if (!user) {
-      toggleModal()
+    const {
+      session_id,
+      user,
+      isAuth,
+      getWatchlistMovies,
+      id,
+      toggleLoginModal,
+    } = this.props
+    if (!isAuth) {
+      toggleLoginModal()
       return
     }
     const queryStringParams = {
@@ -31,7 +38,7 @@ class WatchlistButton extends React.Component {
         watchlist: !this.isInWatchlist(),
       },
     })
-      .then(() => getWatchlistMovies(user, session_id))
+      .then(() => getWatchlistMovies({ user, session_id }))
       .then(() => {
         this.setState({
           loading: false,
@@ -44,7 +51,9 @@ class WatchlistButton extends React.Component {
   }
 
   isInWatchlist = () =>
-    this.props.watchlist.findIndex(movie => movie.id === this.props.id) !== -1
+    this.props.watchlistMovies.findIndex(
+      movie => movie.id === this.props.id
+    ) !== -1
 
   render() {
     return (

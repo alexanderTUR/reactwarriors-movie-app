@@ -5,7 +5,7 @@ import AppContextHoc from '../HOC/AppContextHOC'
 
 class Header extends React.Component {
   render() {
-    const { user, toggleModal } = this.props
+    const { user, toggleLoginModal } = this.props
     return (
       <nav className="navbar navbar-dark bg-primary">
         <div className="container">
@@ -23,7 +23,7 @@ class Header extends React.Component {
               <button
                 type="button"
                 className="btn btn-success"
-                onClick={toggleModal}
+                onClick={toggleLoginModal}
               >
                 Login
               </button>

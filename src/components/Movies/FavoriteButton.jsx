@@ -12,9 +12,16 @@ class FavoriteButton extends React.Component {
   }
 
   updateFavoriteList = () => {
-    const { session_id, user, toggleModal, getFavoriteMovies, id } = this.props
-    if (!user) {
-      toggleModal()
+    const {
+      session_id,
+      user,
+      isAuth,
+      getFavoriteMovies,
+      id,
+      toggleLoginModal,
+    } = this.props
+    if (!isAuth) {
+      toggleLoginModal()
       return
     }
     const queryStringParams = {
@@ -31,7 +38,7 @@ class FavoriteButton extends React.Component {
         favorite: !this.isFavorite(),
       },
     })
-      .then(() => getFavoriteMovies(user, session_id))
+      .then(() => getFavoriteMovies({ user, session_id }))
       .then(() => {
         this.setState({
           loading: false,
@@ -44,7 +51,8 @@ class FavoriteButton extends React.Component {
   }
 
   isFavorite = () =>
-    this.props.favorite.findIndex(movie => movie.id === this.props.id) !== -1
+    this.props.favoriteMovies.findIndex(movie => movie.id === this.props.id) !==
+    -1
 
   render() {
     return (

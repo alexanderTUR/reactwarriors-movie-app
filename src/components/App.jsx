@@ -6,81 +6,38 @@ import CallApi from '../api/api'
 import MoviesPage from './pages/MoviesPage/MoviesPage'
 import MoviePage from './pages/MoviePage/MoviePage'
 import { BrowserRouter, Route } from 'react-router-dom'
-import Cookies from 'universal-cookie'
-
-const cookies = new Cookies()
+import {
+  updateAuth,
+  onLogOut,
+  toggleLoginModal,
+  updateFavoriteMovies,
+  updateWatchListMovies,
+} from '../redux/auth/auth.actions'
+import { bindActionCreators } from 'redux'
+import { connect } from 'react-redux'
 
 export const AppContext = React.createContext()
-export default class App extends React.Component {
-  constructor() {
-    super()
-    this.state = {
-      watchlist: [],
-      favorite: [],
-      showModal: false,
-    }
-  }
 
-  toggleModal = () => {
-    this.setState(prewState => ({
-      showModal: !prewState.showModal,
-    }))
-  }
-
-  // updateUser = user => {
-  //   this.setState({
-  //     user,
-  //   })
-  // }
-
-  // updateSessionId = session_id => {
-  //   this.setState({
-  //     session_id,
-  //   })
-  // }
-
-  updateAuth = (user, session_id) => {
-    this.setState({
-      user,
-      session_id,
-    })
-  }
-
-  onLogOut = () => {
-    cookies.remove('session_id')
-    this.setState({
-      session_id: null,
-      user: null,
-      watchlist: [],
-      favorite: [],
-      showModal: false,
-      isAuth: false,
-    })
-  }
-
-  getFavoriteMovies = (user, session_id) => {
+class App extends React.Component {
+  getFavoriteMovies = ({ user, session_id }) => {
     const queryStringParams = {
       session_id,
     }
     return CallApi.get(`/account/${user.id}/favorite/movies`, {
       params: queryStringParams,
-    }).then(response => {
-      this.setState({
-        favorite: response.results,
-      })
+    }).then(data => {
+      this.props.updateFavoriteMovies(data.results)
     })
   }
 
-  getWatchlistMovies = (user, session_id) => {
+  getWatchlistMovies = ({ user, session_id }) => {
     const queryStringParams = {
       session_id,
     }
     return CallApi.get(`/account/${user.id}/watchlist/movies`, {
       params: queryStringParams,
-    }).then(response => {
-      this.setState({
-        watchlist: response.results,
-      })
+    }).then(data => {
+      this.props.updateWatchListMovies(data.results)
     })
   }
 
@@ -90,50 +47,58 @@ export default class App extends React.Component {
       session_id,
     }
     if (session_id) {
-      this.setState({
-        session_id,
-      })
       CallApi.get('/account', {
         params: queryStringParams,
       }).then(user => {
-        this.props.updateAuth(user, session_id)
+        this.props.updateAuth({ user, session_id })
+        this.getFavoriteMovies({ user, session_id })
+        this.getWatchlistMovies({ user, session_id })
       })
     }
   }
 
-  componentDidUpdate(_, prevState) {
-    if (prevState.user === null && this.state.user) {
-      this.getFavoriteMovies(this.state.user, this.state.session_id)
-      this.getWatchlistMovies(this.state.user, this.state.session_id)
+  componentDidUpdate(prevProps) {
+    if (prevProps.isAuth !== this.props.isAuth && this.props.isAuth) {
+      this.getFavoriteMovies(this.props)
+      this.getWatchlistMovies(this.props)
     }
   }
 
   render() {
-    const { watchlist, favorite, showModal } = this.state
-    const { user, session_id } = this.props.store.getState()
+    const {
+      user,
+      session_id,
+      isAuth,
+      showLoginModal,
+      updateAuth,
+      onLogOut,
+      toggleLoginModal,
+      favoriteMovies,
+      watchlistMovies,
+    } = this.props
     return (
       <BrowserRouter>
         <AppContext.Provider
           value={{
             user,
             session_id,
-            watchlist,
-            favorite,
-            showModal,
-            updateUser: this.updateUser,
-            updateSessionId: this.updateSessionId,
-            onLogOut: this.onLogOut,
+            isAuth,
+            showLoginModal,
+            updateAuth,
+            onLogOut,
+            toggleLoginModal,
+            favoriteMovies,
+            watchlistMovies,
             getFavoriteMovies: this.getFavoriteMovies,
             getWatchlistMovies: this.getWatchlistMovies,
-            toggleModal: this.toggleModal,
           }}
         >
           <div>
             <Header />
             <Route exact path="/" component={MoviesPage} />
             <Route path="/movie/:id" component={MoviePage} />
-            {!user && (
-              <Modal isOpen={showModal} toggle={this.toggleModal}>
+            {!isAuth && (
+              <Modal isOpen={showLoginModal} toggle={toggleLoginModal}>
                 <ModalBody>
                   <LoginForm />
                 </ModalBody>
@@ -145,3 +110,29 @@ export default class App extends React.Component {
     )
   }
 }
+
+const mapStateToProps = state => {
+  return {
+    user: state.auth.user,
+    session_id: state.auth.session_id,
+    isAuth: state.auth.isAuth,
+    showLoginModal: state.auth.showLoginModal,
+    favoriteMovies: state.auth.favoriteMovies,
+    watchlistMovies: state.auth.watchlistMovies,
+  }
+}
+
+const mapDispatchToProps = dispatch => {
+  return bindActionCreators(
+    {
+      updateAuth,
+      onLogOut,
+      toggleLoginModal,
+      updateFavoriteMovies,
+      updateWatchListMovies,
+    },
+    dispatch
+  )
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(App)
