@@ -16,7 +16,7 @@ class WatchlistButton extends React.Component {
       session_id,
       user,
       isAuth,
-      getWatchlistMovies,
+      fetchWatchListMovies,
       id,
       toggleLoginModal,
     } = this.props
@@ -38,7 +38,7 @@ class WatchlistButton extends React.Component {
         watchlist: !this.isInWatchlist(),
       },
     })
-      .then(() => getWatchlistMovies({ user, session_id }))
+      .then(() => fetchWatchListMovies({ user, session_id }))
       .then(() => {
         this.setState({
           loading: false,

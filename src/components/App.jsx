@@ -2,16 +2,15 @@ import React from 'react'
 import { Modal, ModalBody } from 'reactstrap'
 import LoginForm from './Header/Login/LoginForm'
 import Header from './Header/Header'
-import CallApi from '../api/api'
 import MoviesPage from './pages/MoviesPage/MoviesPage'
 import MoviePage from './pages/MoviePage/MoviePage'
 import { BrowserRouter, Route } from 'react-router-dom'
 import {
-  updateAuth,
   onLogOut,
   toggleLoginModal,
-  updateFavoriteMovies,
-  updateWatchListMovies,
+  fetchFavoriteMovies,
+  fetchWatchListMovies,
+  fetchAuth,
 } from '../redux/auth/auth.actions'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
@@ -19,48 +18,10 @@ import { connect } from 'react-redux'
 export const AppContext = React.createContext()
 
 class App extends React.Component {
-  getFavoriteMovies = ({ user, session_id }) => {
-    const queryStringParams = {
-      session_id,
-    }
-    return CallApi.get(`/account/${user.id}/favorite/movies`, {
-      params: queryStringParams,
-    }).then(data => {
-      this.props.updateFavoriteMovies(data.results)
-    })
-  }
-
-  getWatchlistMovies = ({ user, session_id }) => {
-    const queryStringParams = {
-      session_id,
-    }
-    return CallApi.get(`/account/${user.id}/watchlist/movies`, {
-      params: queryStringParams,
-    }).then(data => {
-      this.props.updateWatchListMovies(data.results)
-    })
-  }
-
   componentDidMount() {
-    const { session_id } = this.props
-    const queryStringParams = {
-      session_id,
-    }
+    const { session_id, fetchAuth } = this.props
     if (session_id) {
-      CallApi.get('/account', {
-        params: queryStringParams,
-      }).then(user => {
-        this.props.updateAuth({ user, session_id })
-        this.getFavoriteMovies({ user, session_id })
-        this.getWatchlistMovies({ user, session_id })
-      })
-    }
-  }
-
-  componentDidUpdate(prevProps) {
-    if (prevProps.isAuth !== this.props.isAuth && this.props.isAuth) {
-      this.getFavoriteMovies(this.props)
-      this.getWatchlistMovies(this.props)
+      fetchAuth(session_id)
     }
   }
 
@@ -70,11 +31,13 @@ class App extends React.Component {
       session_id,
       isAuth,
       showLoginModal,
-      updateAuth,
+      fetchAuth,
       onLogOut,
       toggleLoginModal,
       favoriteMovies,
       watchlistMovies,
+      fetchFavoriteMovies,
+      fetchWatchListMovies,
     } = this.props
     return (
       <BrowserRouter>
@@ -84,13 +47,13 @@ class App extends React.Component {
             session_id,
             isAuth,
             showLoginModal,
-            updateAuth,
+            fetchAuth,
             onLogOut,
             toggleLoginModal,
             favoriteMovies,
             watchlistMovies,
-            getFavoriteMovies: this.getFavoriteMovies,
-            getWatchlistMovies: this.getWatchlistMovies,
+            fetchFavoriteMovies,
+            fetchWatchListMovies,
           }}
         >
           <div>
@@ -125,11 +88,11 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => {
   return bindActionCreators(
     {
-      updateAuth,
       onLogOut,
       toggleLoginModal,
-      updateFavoriteMovies,
-      updateWatchListMovies,
+      fetchFavoriteMovies,
+      fetchWatchListMovies,
+      fetchAuth,
     },
     dispatch
   )

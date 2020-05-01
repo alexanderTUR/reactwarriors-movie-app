@@ -80,21 +80,12 @@ class LoginForm extends React.Component {
       })
       .then(data => {
         session_id = data.session_id
-        return CallApi.get('/account', {
-          params: {
-            session_id: data.session_id,
-          },
-        })
+        return this.props.fetchAuth(session_id)
       })
-      .then(user => {
-        this.setState(
-          {
-            submitting: false,
-          },
-          () => {
-            this.props.updateAuth({ user, session_id })
-          }
-        )
+      .then(() => {
+        this.setState({
+          submitting: false,
+        })
       })
       .catch(error => {
         console.log('error', error)

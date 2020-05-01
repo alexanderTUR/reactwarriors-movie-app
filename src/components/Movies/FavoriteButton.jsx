@@ -16,7 +16,7 @@ class FavoriteButton extends React.Component {
       session_id,
       user,
       isAuth,
-      getFavoriteMovies,
+      fetchFavoriteMovies,
       id,
       toggleLoginModal,
     } = this.props
@@ -38,7 +38,7 @@ class FavoriteButton extends React.Component {
         favorite: !this.isFavorite(),
       },
     })
-      .then(() => getFavoriteMovies({ user, session_id }))
+      .then(() => fetchFavoriteMovies({ user, session_id }))
       .then(() => {
         this.setState({
           loading: false,

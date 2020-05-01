@@ -3,8 +3,6 @@ import Cookies from 'universal-cookie'
 
 const cookies = new Cookies()
 
-console.log(types)
-
 const initialState = {
   user: null,
   session_id: cookies.get('session_id') || null,
