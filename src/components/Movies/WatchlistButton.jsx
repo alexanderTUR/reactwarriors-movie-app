@@ -1,5 +1,5 @@
 import React from 'react'
-import AppContextHoc from '../HOC/AppContextHOC'
+import { withAuth } from '../../hoc/withAuth'
 import CallApi from '../../api/api'
 import { Bookmark, BookmarkBorder } from '@material-ui/icons'
 
@@ -12,33 +12,26 @@ class WatchlistButton extends React.Component {
   }
 
   updateWatchlist = () => {
-    const {
-      session_id,
-      user,
-      isAuth,
-      fetchWatchListMovies,
-      id,
-      toggleLoginModal,
-    } = this.props
-    if (!isAuth) {
-      toggleLoginModal()
+    const { auth, authActions } = this.props
+    if (!auth.isAuth) {
+      authActions.toggleLoginModal()
       return
     }
     const queryStringParams = {
-      session_id,
+      session_id: auth.session_id,
     }
     this.setState({
       loading: true,
     })
-    CallApi.post(`/account/${user.id}/watchlist`, {
+    CallApi.post(`/account/${auth.user.id}/watchlist`, {
       params: queryStringParams,
       body: {
         media_type: 'movie',
-        media_id: id,
+        media_id: this.props.id,
         watchlist: !this.isInWatchlist(),
       },
     })
-      .then(() => fetchWatchListMovies({ user, session_id }))
+      .then(() => authActions.fetchWatchListMovies(auth))
       .then(() => {
         this.setState({
           loading: false,
@@ -51,7 +44,7 @@ class WatchlistButton extends React.Component {
   }
 
   isInWatchlist = () =>
-    this.props.watchlistMovies.findIndex(
+    this.props.auth.watchlistMovies.findIndex(
       movie => movie.id === this.props.id
     ) !== -1
 
@@ -69,4 +62,4 @@ class WatchlistButton extends React.Component {
   }
 }
 
-export default AppContextHoc(WatchlistButton)
+export default withAuth(WatchlistButton)

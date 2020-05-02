@@ -1,5 +1,5 @@
 import React from 'react'
-import AppContextHoc from '../HOC/AppContextHOC'
+import { withAuth } from '../../hoc/withAuth'
 import CallApi from '../../api/api'
 import { Star, StarBorder } from '@material-ui/icons'
 
@@ -12,33 +12,26 @@ class FavoriteButton extends React.Component {
   }
 
   updateFavoriteList = () => {
-    const {
-      session_id,
-      user,
-      isAuth,
-      fetchFavoriteMovies,
-      id,
-      toggleLoginModal,
-    } = this.props
-    if (!isAuth) {
-      toggleLoginModal()
+    const { auth, authActions } = this.props
+    if (!auth.isAuth) {
+      authActions.toggleLoginModal()
       return
     }
     const queryStringParams = {
-      session_id,
+      session_id: auth.session_id,
     }
     this.setState({
       loading: true,
     })
-    CallApi.post(`/account/${user.id}/favorite`, {
+    CallApi.post(`/account/${auth.user.id}/favorite`, {
       params: queryStringParams,
       body: {
         media_type: 'movie',
-        media_id: id,
+        media_id: this.props.id,
         favorite: !this.isFavorite(),
       },
     })
-      .then(() => fetchFavoriteMovies({ user, session_id }))
+      .then(() => authActions.fetchFavoriteMovies(auth))
       .then(() => {
         this.setState({
           loading: false,
@@ -51,8 +44,9 @@ class FavoriteButton extends React.Component {
   }
 
   isFavorite = () =>
-    this.props.favoriteMovies.findIndex(movie => movie.id === this.props.id) !==
-    -1
+    this.props.auth.favoriteMovies.findIndex(
+      movie => movie.id === this.props.id
+    ) !== -1
 
   render() {
     return (
@@ -68,4 +62,4 @@ class FavoriteButton extends React.Component {
   }
 }
 
-export default AppContextHoc(FavoriteButton)
+export default withAuth(FavoriteButton)

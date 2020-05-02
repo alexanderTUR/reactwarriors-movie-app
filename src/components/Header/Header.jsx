@@ -1,11 +1,11 @@
 import React from 'react'
 import UserMenu from './UserMenu'
 import { Link } from 'react-router-dom'
-import AppContextHoc from '../HOC/AppContextHOC'
+import { withAuth } from '../../hoc/withAuth'
 
 class Header extends React.Component {
   render() {
-    const { user, toggleLoginModal } = this.props
+    const { auth, authActions } = this.props
     return (
       <nav className="navbar navbar-dark bg-primary">
         <div className="container">
@@ -16,14 +16,14 @@ class Header extends React.Component {
               </Link>
             </li>
           </ul>
-          {user ? (
+          {auth.isAuth ? (
             <UserMenu />
           ) : (
             <div className="ml-auto">
               <button
                 type="button"
                 className="btn btn-success"
-                onClick={toggleLoginModal}
+                onClick={authActions.toggleLoginModal}
               >
                 Login
               </button>
@@ -35,4 +35,4 @@ class Header extends React.Component {
   }
 }
 
-export default AppContextHoc(Header)
+export default withAuth(Header)

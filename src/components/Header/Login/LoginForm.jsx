@@ -1,5 +1,5 @@
 import React from 'react'
-import AppContextHoc from '../../HOC/AppContextHOC'
+import { withAuth } from '../../../hoc/withAuth'
 import cx from 'classnames'
 import CallApi from '../../../api/api'
 
@@ -80,7 +80,7 @@ class LoginForm extends React.Component {
       })
       .then(data => {
         session_id = data.session_id
-        return this.props.fetchAuth(session_id)
+        return this.props.authActions.fetchAuth(session_id)
       })
       .then(() => {
         this.setState({
@@ -198,4 +198,4 @@ class LoginForm extends React.Component {
   }
 }
 
-export default AppContextHoc(LoginForm)
+export default withAuth(LoginForm)
