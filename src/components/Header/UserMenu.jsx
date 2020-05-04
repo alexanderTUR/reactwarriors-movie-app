@@ -5,7 +5,7 @@ import {
   DropdownMenu,
   DropdownItem,
 } from 'reactstrap'
-import AppContextHoc from '../HOC/AppContextHOC'
+import { withAuth } from '../../hoc/withAuth'
 import CallApi from '../../api/api'
 
 class UserMenu extends Component {
@@ -20,18 +20,18 @@ class UserMenu extends Component {
   }
 
   handleLogOut = () => {
-    const { session_id, onLogOut } = this.props
+    const { auth, authActions } = this.props
     CallApi.delete('/authentication/session', {
       body: {
-        session_id,
+        session_id: auth.session_id,
       },
     }).then(() => {
-      onLogOut()
+      authActions.onLogOut()
     })
   }
 
   render() {
-    const { user } = this.props
+    const { auth } = this.props
     return (
       <div className="ml-auto">
         <Dropdown isOpen={this.state.dropdownOpen} toggle={this.toggleDropdown}>
@@ -42,7 +42,7 @@ class UserMenu extends Component {
             aria-expanded={this.state.dropdownOpen}
           >
             <img
-              src={`https://secure.gravatar.com/avatar/${user.avatar.gravatar.hash}.jpg?s=64`}
+              src={`https://secure.gravatar.com/avatar/${auth.user.avatar.gravatar.hash}.jpg?s=64`}
               alt="Avatar"
               onClick={this.toggleDropdown}
             />
@@ -56,4 +56,4 @@ class UserMenu extends Component {
   }
 }
 
-export default AppContextHoc(UserMenu)
+export default withAuth(UserMenu)
